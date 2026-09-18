@@ -9,9 +9,11 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping health check and verify the bridge is fully connected
+      - name: Wake up + verify the bridge is fully connected
         run: |
-          body="$(curl -sf --max-time 20 https://al-manara-tg-wa-bridge.onrender.com/)"
+          # محتاجين مهلة أطول من 20 ثانية عشان لو Render كان نايم (cold start)
+          # ممكن ياخد وقت أطول عشان يصحى، ولو فشلنا هنا الخدمة تفضل نايمة.
+          body="$(curl -sf --max-time 60 --retry 3 --retry-delay 5 https://al-manara-tg-wa-bridge.onrender.com/)"
           echo "$body"
           tg=$(echo "$body" | jq -r '.telegram')
           wa=$(echo "$body" | jq -r '.whatsapp')
